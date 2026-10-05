@@ -14,4 +14,6 @@ assert.equal(graphItems.filter(item => item.kind === 'core').length, 10)
 assert.equal(cases.length, 12)
 assert.ok(graphLinks.every(([a, b]) => graphIds.has(a) && graphIds.has(b)))
 assert.ok(cases.every(item => item.nodes.every(node => graphIds.has(node))))
+const trainingPath = ['兼职赚钱', '收益承诺', '培训销售', '分期贷款', '退出困难']
+assert.ok(trainingPath.every((node, i) => i === 0 || graphLinks.some(([a, b]) => a === trainingPath[i - 1] && b === node)))
 console.log('风险规则与案例图谱检查通过')
