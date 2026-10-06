@@ -1,5 +1,7 @@
-export type GraphItem = { id: string; kind: 'core' | 'pattern' | 'example'; x: number; y: number; description: string }
-export const graphItems: GraphItem[] = [
+import type { GraphNode, SourceInfo } from '../schema'
+export type GraphItem = GraphNode
+const exampleSource: SourceInfo = { sourceType: '示例数据', sourceUrl: '', verificationStatus: '未验证', updatedAt: '2026-10-06' }
+const graphData: Omit<GraphNode, keyof SourceInfo>[] = [
   { id: '利益诱导', kind: 'core', x: 460, y: 80, description: '用好处吸引注意，让人先靠近机会。' },
   { id: '身份冒充', kind: 'core', x: 790, y: 80, description: '借官方、平台或熟人身份降低警惕。' },
   { id: '恐惧施压', kind: 'core', x: 1070, y: 240, description: '制造紧迫感，让人没有时间核实。' },
@@ -19,6 +21,7 @@ export const graphItems: GraphItem[] = [
   { id: '收益承诺', kind: 'pattern', x: 680, y: -170, description: '用预期收入降低对当前付款或借贷的警惕。' },
   { id: '培训销售', kind: 'pattern', x: 900, y: -170, description: '把工作机会引向付费课程，需要核对课程和招聘关系。' },
 ]
+export const graphItems: GraphItem[] = graphData.map(item => ({ ...item, ...exampleSource }))
 
 // 边表达套路间的交叉关系；同一案例可同时关联多个节点，而不是单一路径。
 export const graphLinks: [string, string][] = [

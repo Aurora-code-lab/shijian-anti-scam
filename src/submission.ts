@@ -1,22 +1,7 @@
 import { analyzeRisk } from './riskAnalyzer.ts'
-
-export type StructuredCase = {
-  entryPlatform: string
-  lure: string
-  claimedIdentity: string
-  promise: string
-  requestedAction: string
-  payment: string
-  loss: string
-  exitBarrier: string
-  graphNodes: string[]
-  outcome: string
-}
-
-export type Submission = {
-  id: string; platform: string; contact: string; story: string; paid: string; amount: string
-  outcome: string; createdAt: string; structured?: StructuredCase
-}
+import type { StructuredCase, Submission } from './schema.ts'
+export type { StructuredCase, Submission } from './schema'
+export const SUBMISSION_STORAGE_KEY = 'shijian-submissions-v1'
 
 export function structureSubmission(entry: Pick<Submission, 'platform' | 'story' | 'paid' | 'amount' | 'outcome'>): StructuredCase {
   const text = entry.story
@@ -34,4 +19,35 @@ export function structureSubmission(entry: Pick<Submission, 'platform' | 'story'
     graphNodes: analyzeRisk(text).graphNodes,
     outcome: entry.outcome.trim() || '未说明',
   }
+}
+
+export function normalizeSubmission(value: unknown): Submission | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const item = value as Record<string, unknown>
+  if (typeof item.id !== 'string' || !item.id || typeof item.story !== 'string') return null
+  const platform = typeof item.platform === 'string' ? item.platform : ''
+  const paid = typeof item.paid === 'string' ? item.paid : ''
+  const amount = typeof item.amount === 'string' ? item.amount : ''
+  const outcome = typeof item.outcome === 'string' ? item.outcome : ''
+  const createdAt = typeof item.createdAt === 'string' ? item.createdAt : new Date().toISOString()
+  const base = { platform, story: item.story, paid, amount, outcome }
+  return {
+    id: item.id, ...base, contact: typeof item.contact === 'string' ? item.contact : '',
+    createdAt, updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : createdAt,
+    // 投稿始终是用户经历，恢复文件不能把它升级成官方结论。
+    sourceType: '用户投稿', sourceUrl: '', verificationStatus: '未验证',
+    structured: structureSubmission(base),
+  }
+}
+
+export function readSubmissions(): { records: Submission[]; error: string | null } {
+  try {
+    const raw = localStorage.getItem(SUBMISSION_STORAGE_KEY)
+    if (!raw) return { records: [], error: null }
+    const value: unknown = JSON.parse(raw)
+    if (!Array.isArray(value)) return { records: [], error: '投稿数据格式异常，请先备份原始数据再恢复。' }
+    const records = value.map(normalizeSubmission)
+    if (records.some(item => !item) || new Set(records.map(item => item?.id)).size !== records.length) return { records: records.filter((item): item is Submission => Boolean(item)), error: '部分投稿数据不完整或编号重复，已暂停写入，避免覆盖原始数据。' }
+    return { records: records as Submission[], error: null }
+  } catch { return { records: [], error: '投稿数据无法读取，请先备份原始数据再恢复。' } }
 }

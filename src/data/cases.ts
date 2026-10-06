@@ -1,14 +1,6 @@
-export type ScamCase = {
-  id: string
-  title: string
-  summary: string
-  path: string[]
-  signals: string[]
-  now: string
-  paid: string
-  nodes: string[]
-  category: string
-}
+import type { Scam, SourceInfo } from '../schema'
+export type ScamCase = Scam
+const exampleSource: SourceInfo = { sourceType: '示例数据', sourceUrl: '', verificationStatus: '未验证', updatedAt: '2026-10-06' }
 
 export const cases: ScamCase[] = [
   { id: 'training-installment', title: '培训分期', category: '求职与培训', summary: '以就业或接单为诱因，让你先办理课程分期。', path: ['承诺工作机会', '推荐培训课程', '引导申请分期', '工作与收入难兑现'], signals: ['包就业或保收入', '催促当天签约', '贷款性质说不清'], now: '暂停签字和人脸验证，核对合同中的贷款方、总额及取消规则。', paid: '联系贷款平台核实合同与取消路径；保存销售承诺、合同和支付记录。', nodes: ['兼职赚钱', '培训分期', '分期贷款'] },
@@ -23,4 +15,4 @@ export const cases: ScamCase[] = [
   { id: 'secondhand-game', title: '游戏/二手交易', category: '平台交易', summary: '引导离开交易平台，用私下转账、假链接或保证金完成交易。', path: ['平台上接触', '转到私聊', '发送支付链接', '商品或账号未交付'], signals: ['要求脱离平台', '交易前交保证金', '收款人和卖家不同'], now: '回到原平台交易与沟通，不点击对方发来的支付或验证链接。', paid: '保存订单、聊天和收款信息，向交易平台及支付渠道申诉。', nodes: ['信任建立', '资金转移', '退出困难'] },
   { id: 'tickets', title: '票务交易', category: '平台交易', summary: '用稀缺票源和限时付款催促私下交易。', path: ['宣称有票', '营造抢票压力', '私下付款', '拒绝出票或失联'], signals: ['拒绝平台担保', '票源无法验证', '催促立刻付款'], now: '只使用可核验的正规票务渠道；不要在私聊中预付全款。', paid: '保存订单、聊天和转账凭证，及时向平台和支付渠道反馈。', nodes: ['利益诱导', '恐惧施压', '资金转移'] },
   { id: 'romance', title: '网恋引导投资', category: '关系与信任', summary: '先建立亲密关系，再以共同理财、困难求助等名义索要钱款。', path: ['频繁联系建立关系', '展示成功或困境', '引导投资/借款', '持续追加'], signals: ['拒绝视频或线下核验', '承诺稳赚', '要求向陌生账户转款'], now: '暂停金钱往来，与可信的人讨论，并独立核实平台及对方身份。', paid: '停止追加资金，保存聊天、账户和转账记录，尽快联系银行。', nodes: ['信任建立', '高收益', '沉没成本'] },
-]
+].map(item => ({ ...item, ...exampleSource }))
