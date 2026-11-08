@@ -8,9 +8,12 @@ import { sourceLabel } from './schema'
 const date = (value: string) => value ? new Date(value).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '时间未记录'
 const riskClass = { 信息不足: 'neutral', 需要注意: 'watch', 高风险: 'high', 紧急: 'urgent' }
 function downloadJson(name: string, content: string) {
+  const android = (window as Window & { ShijianAndroid?: { saveFile: (name: string, type: string, content: string) => void } }).ShijianAndroid
+  if (android) { android.saveFile(name, 'application/json', content); return false }
   const url = URL.createObjectURL(new Blob([content], { type: 'application/json' }))
   const link = document.createElement('a'); link.href = url; link.download = name; document.body.append(link); link.click(); link.remove()
   window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+  return true
 }
 
 export function CaseList() {
@@ -26,8 +29,8 @@ export function CaseList() {
   }
   function exportData(raw = false) {
     try {
-      downloadJson(`识间${raw ? '原始数据' : '本地备份'}-${new Date().toISOString().slice(0, 10)}.json`, raw ? exportRawBackup() : exportBackup())
-      setBackupMessage(raw ? '原始数据已导出。该文件仅用于修复，不能直接导入。' : '备份已导出。文件可能包含敏感信息，请妥善保存。')
+      const saved = downloadJson(`识间${raw ? '原始数据' : '本地备份'}-${new Date().toISOString().slice(0, 10)}.json`, raw ? exportRawBackup() : exportBackup())
+      setBackupMessage(saved ? raw ? '原始数据已导出。该文件仅用于修复，不能直接导入。' : '备份已导出。文件可能包含敏感信息，请妥善保存。' : '请选择保存位置；取消后不会生成文件。')
     } catch (cause) { setBackupMessage(cause instanceof Error ? cause.message : '导出失败，请检查浏览器权限。') }
   }
   async function importData(event: ChangeEvent<HTMLInputElement>) {

@@ -13,6 +13,12 @@ npm run dev
 
 打开终端显示的本地地址。其他命令：`npm test` 检查规则、数据迁移与备份，`npm run build` 检查 TypeScript 并生成 `dist/`，`npm run preview` 预览构建版。
 
+## Android 测试版 APK
+
+GitHub Actions 的 **Android APK** 工作流会在推送后运行测试、构建网站资源，并打包可安装的调试版 APK。到该次运行的 Artifacts 下载 `shijian-android-debug`，解压后安装 `app-debug.apk`。调试版使用临时签名，供个人测试；正式发布需要稳定签名并完成设备测试。
+
+App 内的判断与案件记录仍在设备本地运行。JSON 备份通过 Android 文件选择器保存和恢复；卸载 App 会删除本机案件，请先导出备份。项目没有申请网络权限，也没有接入真实 AI 服务。
+
 ## 当前功能
 
 - 首页描述输入、三个快捷入口、首次访问提示。
